@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TasteIdea</title>
+<meta name="description" content="TasteIdea：给导演和做创意的人的 Mac 工作台。每天看别人在做什么，把打动你的存下来，在无限画布上长成完整的项目，再排进日程做出来。">
+<meta property="og:title" content="TasteIdea · 把点子做出来，亮给大家看">
+<meta property="og:description" content="给导演和做创意的人的 Mac 工作台。Mac 内测版 0.3.0 免费下载。">
+<meta property="og:image" content="https://jimwei2026.github.io/TasteIdea/media/mv-poster.webp">
+<meta property="og:url" content="https://jimwei2026.github.io/TasteIdea/">
+<meta property="og:type" content="website">
+<style>
+/* 布局：深色首屏 + 一张「纸」色的 App 截图当主角；四个板块左右交替，每块一句话 + 一段真实录屏 + 同步字幕；朱红只做一处点缀 */
+:root {
+  --bg: #0b0b0d; --bg-2: #111114; --surface: #17171a; --line: rgba(255,255,255,.09);
+  --fg: #f2f2f3; --fg-2: #a6a6ad; --fg-3: #6f6f76;
+  --accent: #d9502f; --accent-soft: rgba(217,80,47,.14);
+  --primary: #f2f2f3; --on-primary: #0b0b0d;
+  --glow: rgba(217,80,47,.22);
+  --font: -apple-system, "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f5f7; --bg-2: #ffffff; --surface: #ffffff; --line: rgba(0,0,0,.08);
+    --fg: #1d1d1f; --fg-2: #5f5f66; --fg-3: #8a8a8f;
+    --accent: #c8451b; --accent-soft: rgba(200,69,27,.10);
+    --primary: #1a1a1a; --on-primary: #ffffff;
+    --glow: rgba(200,69,27,.14);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f5f5f7; --bg-2: #ffffff; --surface: #ffffff; --line: rgba(0,0,0,.08);
+  --fg: #1d1d1f; --fg-2: #5f5f66; --fg-3: #8a8a8f;
+  --accent: #c8451b; --accent-soft: rgba(200,69,27,.10);
+  --primary: #1a1a1a; --on-primary: #ffffff;
+  --glow: rgba(200,69,27,.14);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+a { color: inherit; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); font-weight: 500; }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -.02em; }
+p { margin: 0; }
+.en { font-size: 14px; color: var(--fg-3); letter-spacing: .01em; }
+
+/* 顶栏 */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--glow); }
+.brand .en { font-weight: 500; color: var(--fg-3); font-size: 13px; }
+.top nav { display: flex; gap: 20px; font-size: 13px; color: var(--fg-2); }
+.top nav a { text-decoration: none; }
+.top nav a:hover { color: var(--fg); }
+@media (max-width: 720px) { .top nav { display: none; } }
+
+/* 按钮 */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 22px; border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none; border: 1px solid transparent; transition: transform .15s ease, background .15s ease; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-ghost { border-color: var(--line); color: var(--fg); background: transparent; }
+.btn-ghost:hover { background: var(--accent-soft); }
+.btn svg { width: 16px; height: 16px; }
+.btn:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* 首屏 */
+.hero { position: relative; padding-block: 88px 40px; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -40% -20% auto; height: 80%; background: radial-gradient(60% 50% at 50% 30%, var(--glow), transparent 70%); pointer-events: none; }
+.hero .wrap { position: relative; text-align: center; }
+.hero h1 { font-size: clamp(38px, 6vw, 72px); font-weight: 700; line-height: 1.08; }
+.hero .name { display: inline-flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+.hero .name .zh { font-size: 20px; font-weight: 600; }
+.hero .name .en { font-size: 16px; }
+.hero .sub { margin: 22px auto 0; max-width: 620px; font-size: clamp(16px, 2vw, 20px); color: var(--fg-2); line-height: 1.6; }
+.hero .cta { display: flex; gap: 12px; justify-content: center; margin-top: 34px; flex-wrap: wrap; }
+.hero .meta { margin-top: 14px; font-size: 13px; color: var(--fg-3); }
+.shot { margin: 56px auto 0; max-width: 1040px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 40px 120px -40px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02); }
+.shot img { display: block; width: 100%; height: auto; }
+.shot.mv video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #0a0a0c; }
+
+/* 初衷 */
+.why { padding-block: 110px 80px; }
+.why .big { font-size: clamp(26px, 4vw, 44px); font-weight: 600; line-height: 1.25; max-width: 860px; letter-spacing: -.02em; }
+.why .big em { font-style: normal; color: var(--accent); }
+.why .row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; margin-top: 40px; align-items: end; }
+.why .row p { color: var(--fg-2); font-size: 17px; max-width: 46ch; }
+.why .row .en { max-width: 44ch; }
+@media (max-width: 760px) { .why .row { grid-template-columns: 1fr; gap: 20px; } }
+
+/* 点 · 线 · 面 */
+.method { padding-block: 40px 100px; }
+.method .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.step { position: relative; padding: 28px 26px 30px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(180deg, var(--surface), transparent); min-width: 0; }
+.step .glyph { font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -.04em; color: var(--fg); }
+.step .glyph small { font-size: 13px; font-weight: 500; letter-spacing: .08em; color: var(--fg-3); margin-left: 10px; vertical-align: 10px; }
+.step h3 { margin-top: 18px; font-size: 19px; font-weight: 600; }
+.step p { margin-top: 8px; color: var(--fg-2); font-size: 15px; }
+.step .en { margin-top: 10px; }
+.step::after { content: ""; position: absolute; right: -9px; top: 50%; width: 16px; height: 1px; background: var(--line); }
+.step:last-child::after { display: none; }
+@media (max-width: 760px) { .method .grid { grid-template-columns: 1fr; } .step::after { display: none; } }
+
+/* 故事线提示：四段演示讲同一个项目 */
+.story { padding-block: 0 8px; }
+.story .card { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 18px 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.story .tag { font-size: 12px; letter-spacing: .08em; color: var(--accent); font-weight: 600; padding: 6px 10px; border: 1px solid var(--accent-soft); border-radius: 999px; background: var(--accent-soft); white-space: nowrap; }
+.story p { color: var(--fg-2); font-size: 15px; }
+.story p b { color: var(--fg); font-weight: 600; }
+@media (max-width: 600px) { .story .card { grid-template-columns: 1fr; gap: 10px; } }
+
+/* 板块 */
+.feature { padding-block: 72px; border-top: 1px solid var(--line); }
+.feature .wrap { display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: center; }
+.feature.flip .wrap { grid-template-columns: 7fr 5fr; }
+.feature.flip .copy { order: 2; }
+.feature .copy { min-width: 0; }
+.feature .k { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-3); font-weight: 500; letter-spacing: .06em; }
+.feature .k i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.feature h2 { margin-top: 14px; font-size: clamp(26px, 3.4vw, 38px); font-weight: 650; line-height: 1.2; }
+.feature .lead { margin-top: 14px; font-size: 17px; color: var(--fg-2); max-width: 40ch; }
+.feature .en { margin-top: 10px; max-width: 40ch; }
+.feature ul { margin: 22px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.feature li { font-size: 13px; color: var(--fg-2); padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+@media (max-width: 860px) { .feature .wrap, .feature.flip .wrap { grid-template-columns: 1fr; gap: 28px; } .feature.flip .copy { order: 0; } }
+
+/* 演示：真实录屏 + 跟着画面走的字幕 + 进度条 */
+.demo { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #101012; box-shadow: 0 30px 80px -40px rgba(0,0,0,.8); max-width: 100%; }
+.demo video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; background: #101012; }
+.demo .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 18px 16px; background: linear-gradient(180deg, rgba(10,10,12,0), rgba(10,10,12,.78) 55%); color: #fff; pointer-events: none; }
+.demo .cap .t { display: block; font-size: 15px; font-weight: 500; line-height: 1.45; text-shadow: 0 1px 2px rgba(0,0,0,.5); transition: opacity .25s ease, transform .25s ease; }
+.demo .cap .t.swap { opacity: 0; transform: translateY(4px); }
+.demo .cap .n { display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: .1em; color: rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
+.demo .bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--accent); transition: width .2s linear; }
+.demo .ctl { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: rgba(10,10,12,.55); color: #fff; font: 500 12px var(--font); cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; transition: opacity .2s ease; }
+.demo:hover .ctl, .demo:focus-within .ctl, .demo.paused .ctl { opacity: 1; }
+.demo .ctl svg { width: 12px; height: 12px; }
+@media (hover: none) { .demo .ctl { opacity: 1; } }
+
+/* 回传 */
+.bridge { padding-block: 72px; border-top: 1px solid var(--line); }
+.bridge .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.bridge h2 { font-size: clamp(24px, 3vw, 34px); font-weight: 650; }
+.bridge p { margin-top: 12px; color: var(--fg-2); font-size: 16px; max-width: 42ch; }
+.paths { display: grid; gap: 10px; }
+.path { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.path .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.path .ic svg { width: 20px; height: 20px; }
+.path b { display: block; font-size: 15px; font-weight: 600; }
+.path span { font-size: 13px; color: var(--fg-2); }
+@media (max-width: 860px) { .bridge .wrap { grid-template-columns: 1fr; gap: 24px; } }
+
+/* 收尾 */
+.close { padding-block: 110px; border-top: 1px solid var(--line); position: relative; overflow: hidden; }
+.close::before { content: ""; position: absolute; inset: auto -20% -60%; height: 80%; background: radial-gradient(50% 50% at 50% 50%, var(--glow), transparent 70%); pointer-events: none; }
+.close .wrap { position: relative; text-align: center; }
+.flow { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; font-size: 15px; color: var(--fg-2); }
+.flow span { display: inline-flex; align-items: center; gap: 18px; }
+.flow span:not(:last-child)::after { content: "→"; color: var(--fg-3); }
+.close h2 { margin-top: 26px; font-size: clamp(28px, 4.4vw, 52px); font-weight: 700; line-height: 1.15; }
+.close .cta { margin-top: 34px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.note { margin-top: 18px; font-size: 13px; color: var(--fg-3); line-height: 1.7; }
+.note code { font-family: var(--mono); font-size: 12px; background: var(--surface); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; }
+footer { border-top: 1px solid var(--line); padding-block: 28px 36px; font-size: 13px; color: var(--fg-3); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* 进场：静止时全部可见，只在支持动效时轻微上浮 */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>TasteIdea</div>
+    <nav>
+      <a href="#why">初衷</a><a href="#today">今日</a><a href="#library">资料库</a><a href="#canvas">项目</a><a href="#calendar">往前看</a><a href="#download">下载</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="name"><span class="zh">TasteIdea</span><span class="en">for Mac</span></div>
+    <h1>把点子做出来，<br>亮给大家看。</h1>
+    <p class="sub">给导演和做创意的人的 Mac 工作台：每天看别人在做什么，把打动你的存下来，在无限画布上长成一个完整的项目，再排进日程做出来。</p>
+    <p class="en" style="margin-top:12px">Turn your taste into ideas you can show. A Mac workbench for directors and creatives.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#download" data-dmg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        下载 Mac 内测版
+      </a>
+      <a class="btn btn-ghost" href="#why">它是怎么来的</a>
+    </div>
+    <p class="meta">0.3.0 内测 · macOS 14 及以上 · Apple 芯片与 Intel</p>
+    <div class="shot reveal mv"><video src="media/tasteidea-mv.mp4" poster="media/mv-poster.webp" controls playsinline preload="metadata" aria-label="TasteIdea 宣传片，59 秒，有配音和音乐"></video></div>
+    <p class="meta" style="margin-top:12px">宣传片 59 秒 · 有声 · 点播放观看</p>
+  </div>
+</section>
+
+<section class="why" id="why">
+  <div class="wrap">
+    <p class="eyebrow">为什么做它 · Why</p>
+    <h2 class="big reveal" style="margin-top:16px">做创意的人，脑子里从不缺画面。<br>缺的是用的时候，<em>第一时间找回来</em>。</h2>
+    <div class="row reveal">
+      <p>写创意、找 reference 的时候，记忆里明明有那个画面、那句话、那段音乐、那颗镜头，就是说不出在哪见过。看过觉得好，用的时候调不出来，等于没看过。TasteIdea从这件事出发，一路长成了现在的样子。</p>
+      <p class="en">Creative people never lack images in their heads. What they lack is finding the right one the moment it's needed. A line, a track, a shot, a short film. TasteIdea started from that gap.</p>
+    </div>
+  </div>
+</section>
+
+<section class="method">
+  <div class="wrap">
+    <div class="grid">
+      <div class="step reveal">
+        <div class="glyph">点<small>DOT</small></div>
+        <h3>把打动你的点存下来</h3>
+        <p>每天看别人在做什么，看到好的随手一存。文字、画面、影像、声音，各有各的地方。</p>
+        <p class="en">Collect the dots: what moves you, saved in one place.</p>
+      </div>
+      <div class="step reveal">
+        <div class="glyph">线<small>LINE</small></div>
+        <h3>在画布上把点连成线</h3>
+        <p>一句话、一颗镜头、一首歌出发，向外发散。库里的东西拖进来，外面看到的随时放进来。</p>
+        <p class="en">Connect them on an infinite canvas until an idea takes shape.</p>
+      </div>
+      <div class="step reveal">
+        <div class="glyph">面<small>PLANE</small></div>
+        <h3>排进日子，做出来</h3>
+        <p>营销节点、拍摄排期、待办，一张日历。好点子不停在脑子里，停在成片里。</p>
+        <p class="en">Put it on the calendar and ship it. Ideas should end as work, not as notes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="story">
+  <div class="wrap">
+    <div class="card reveal">
+      <span class="tag">一个项目走完四步</span>
+      <p>下面四段都是 App 里的真实录屏，讲的是同一件事：接到一个<b>「海边咖啡馆 · 开业短片」</b>的活，从每天看案例，到存参考、搭画布、排拍摄日。字幕跟着画面走，说明每一步在做什么。</p>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="today">
+  <div class="wrap">
+    <div class="copy reveal">
+      <span class="k"><i></i>今日 · TODAY</span>
+      <h2>全网的创意，每天送到你面前。</h2>
+      <p class="lead">22 个来源每天抓最新的营销案例、AI 影片、实拍短片和获奖作品。写创意时搜一个关键词，相关案例直接出来；看中的一键存进收件箱，影片一键存进影像库。</p>
+      <p class="en">Fresh campaigns, AI films and award-winning shorts every day. Search a keyword, see the cases, save in one click.</p>
+      <ul><li>资讯 / AI 影片 / 实拍短片 / 获奖短片</li><li>关键词搜案例</li><li>一键存到收件箱</li><li>影片直接存进影像</li></ul>
+    </div>
+    <div class="demo reveal" data-cues='[[0,"今日：22 个来源每天送来新的案例和短片"],[2.2,"切到「AI 影片」，看看别人最近在做什么"],[8.2,"回到资讯，为海边咖啡馆这个活搜一个词：「海边」"],[12,"相关案例直接出来，带来源和「为什么推荐」"],[19,"看中这条海边餐厅品牌案例，存到收件箱"],[21.5,"清掉搜索；首屏推荐同样能一键存"],[28.3,"影片卡片上有「存到影像」，整条片进资料库"],[33.5,"打开影像分区，它已经在里面了"]]'>
+      <video src="media/today.mp4" poster="media/hero-home.webp" muted loop playsinline preload="metadata" aria-label="演示：在今日页切换到 AI 影片，搜索关键词，把案例存到收件箱，把影片存到影像库"></video>
+    </div>
+  </div>
+</section>
+
+<section class="feature flip" id="library">
+  <div class="wrap">
+    <div class="copy reveal">
+      <span class="k"><i></i>资料库 · LIBRARY</span>
+      <h2>看过的、听过的、见过的，都调得出来。</h2>
+      <p class="lead">画面、影像、文字、声音四个分区，看过觉得好的东西有了固定的去处。随手记一笔，想法进文字分区；粘贴一个视频链接，整条片子直接进库，带着标题和来源。</p>
+      <p class="en">Frames, films, words and sounds in one library. Jot a thought, paste a link, and the video lands inside with its source and title.</p>
+      <ul><li>画面 / 影像 / 文字 / 声音</li><li>记一笔</li><li>粘贴链接直接下载</li><li>来源永远跟着素材</li></ul>
+    </div>
+    <div class="demo reveal" data-cues='[[0,"收件箱：刚存的链接在这儿等着归位"],[2.2,"记一笔：把刚想到的开场空镜写下来"],[11,"保存。它同时进了收件箱和「文字」分区"],[15.2,"资料库四个分区：画面、影像、文字、声音"],[20.2,"进影像分区，点「添加链接」"],[23.2,"贴一条 B 站链接：瑞幸「向海边出发」的广告片"],[26.3,"开始下载，解析、下载、入库都在后台跑"],[36.2,"下载完成：整条片带着标题和来源进库，还自动标了调性"]]'>
+      <video src="media/library.mp4" muted loop playsinline preload="metadata" aria-label="演示：记一笔保存到文字分区，在影像库粘贴一条视频链接并下载完成进库"></video>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="canvas">
+  <div class="wrap">
+    <div class="copy reveal">
+      <span class="k"><i></i>项目 · CANVAS</span>
+      <h2>从一句话、一颗镜头出发，长成完整的 idea。</h2>
+      <p class="lead">创意很少一开始就完整。它从一段文字、一段影片、一首音乐起步，不断向外发散。无限画布就是给这个过程用的：套一个模板起头，按 N 贴便签，剪贴板里的链接 ⌘V 就变成带封面的卡片。</p>
+      <p class="en">Ideas start small and sprawl. An infinite canvas for the sprawl: start from a template, drop notes, paste links as cards, connect and group until the project is whole.</p>
+      <ul><li>无限画布</li><li>模板起头</li><li>N 贴便签</li><li>⌘V 粘链接成卡片</li><li>连线 / 分组 / 子画板</li></ul>
+    </div>
+    <div class="demo reveal" data-cues='[[0,"项目：每个项目是一块无限画布"],[2.2,"新建项目：「海边咖啡馆 · 开业短片」"],[7.2,"空板先套一个「视觉灵感板」模板起头"],[11.2,"按 N 贴一张便签，写下客户要什么"],[18.2,"剪贴板里有刚才那条广告片的链接，⌘V 直接贴进画布"],[21,"它变成一张带封面和标题的参考卡片"],[26,"便签、参考片、色调和构图格子铺在一起，创意开始发散"]]'>
+      <video src="media/canvas.mp4" poster="media/poster-canvas.webp" muted loop playsinline preload="metadata" aria-label="演示：新建项目、套模板、贴便签、把链接粘成卡片"></video>
+    </div>
+  </div>
+</section>
+
+<section class="feature flip" id="calendar">
+  <div class="wrap">
+    <div class="copy reveal">
+      <span class="k"><i></i>往前看 · CALENDAR</span>
+      <h2>营销节点、拍摄排期、待办，一张表。</h2>
+      <p class="lead">日、周、月随意切，双击就建任务，拖一下就改时间。营销日历和自己的多任务排在一起，系统日历并列显示，今天该做什么一眼清楚。</p>
+      <p class="en">Marketing moments, shoot schedules and to-dos on one calendar. Double-click to create, drag to reschedule.</p>
+      <ul><li>日 / 周 / 月</li><li>双击建任务</li><li>拖动改排期</li><li>系统日历并列</li></ul>
+    </div>
+    <div class="demo reveal" data-cues='[[0,"往前看：月视图里是节日、营销节点和手头的排期"],[3.2,"切到周视图"],[6.5,"在周四下午双击空格，建一条「勘景：海边咖啡馆」"],[12.5,"拖一下，改到周五"],[16.2,"再双击，把「拍摄日 · 日出场」排进周六"],[22,"回到月视图，这个项目的两步已经在日子上了"]]'>
+      <video src="media/calendar.mp4" muted loop playsinline preload="metadata" aria-label="演示：从月视图切到周视图，双击建任务，拖动改时间"></video>
+    </div>
+  </div>
+</section>
+
+<section class="bridge">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">随手存 · SAVE FROM ANYWHERE</p>
+      <h2 style="margin-top:14px">在哪看到，就在哪存。</h2>
+      <p>不用切回 App。Safari、Chrome 的分享菜单里多一个「TasteIdea」，网页存成链接进收件箱，视频链接直接下载进影像。也可以把两枚书签放进浏览器书签栏，点一下就进来。</p>
+      <p class="en" style="margin-top:10px">Save from Safari or Chrome without switching apps. Pages go to the inbox, video links download straight into the library.</p>
+    </div>
+    <div class="paths reveal">
+      <div class="path"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/></svg></div><div><b>系统分享菜单</b><span>Safari / Chrome 分享 → TasteIdea</span></div></div>
+      <div class="path"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div><div><b>书签一键存</b><span>「存链接」「下载视频」两枚书签</span></div></div>
+      <div class="path"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16"/></svg></div><div><b>站内浏览器</b><span>登录一次长期有效，看到视频按 ⌘D 下载</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="close" id="download">
+  <div class="wrap">
+    <div class="flow reveal"><span>任务日历</span><span>别人在做什么</span><span>自己的创意库</span><span>把创意做出来</span></div>
+    <h2 class="reveal">一个创意从头到尾，<br>只要这一个 App。</h2>
+    <div class="cta reveal">
+      <a class="btn btn-primary" href="#download" data-dmg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        下载 Mac 内测版 0.3.0
+      </a>
+    </div>
+    <p class="note" id="dl-note">内测包未经苹果公证。第一次打开请在 Applications 里对它点右键 → 「打开」，之后就正常了。<br>macOS 14 及以上，Apple 芯片与 Intel 通用。视频下载引擎已随包附带。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>TasteIdea · 把点子做出来，亮给大家看</span>
+    <span>内测版 0.3.0 · 2026</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // 下载地址：发布时填进来；还没有地址时按钮停在页面底部的说明上
+  var DMG = "https://github.com/jimwei2026/TasteIdea/releases/download/v0.3.0/TasteIdea-0.3.0.dmg";
+  var links = document.querySelectorAll("[data-dmg]");
+  if (DMG) { links.forEach(function (a) { a.href = DMG; a.removeAttribute("data-dmg"); }); }
+  else {
+    var note = document.getElementById("dl-note");
+    if (note) note.insertAdjacentHTML("afterbegin", "安装包正在上传，稍后这里会变成直接下载。<br>");
+  }
+  var motion = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // 进场动效：静止可见；支持动效时轻微上浮
+  if (motion && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+  }
+
+  // 演示：字幕跟着播放进度走；进视口才播，离开就停；减少动效时不自动播，点一下再播
+  document.querySelectorAll(".demo").forEach(function (box) {
+    var v = box.querySelector("video");
+    var cues = [];
+    try { cues = JSON.parse(box.getAttribute("data-cues") || "[]"); } catch (e) {}
+    var cap = document.createElement("div"); cap.className = "cap";
+    cap.innerHTML = '<span class="n"></span><span class="t"></span>';
+    var bar = document.createElement("div"); bar.className = "bar";
+    var ctl = document.createElement("button"); ctl.type = "button"; ctl.className = "ctl";
+    box.appendChild(cap); box.appendChild(bar); box.appendChild(ctl);
+    var n = cap.querySelector(".n"), t = cap.querySelector(".t");
+    var idx = -1;
+    function setCtl() {
+      ctl.innerHTML = v.paused
+        ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>播放'
+        : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>暂停';
+      ctl.setAttribute("aria-label", v.paused ? "播放演示" : "暂停演示");
+      box.classList.toggle("paused", v.paused);
+    }
+    function show(i, instant) {
+      if (i === idx) return;
+      idx = i;
+      var apply = function () {
+        n.textContent = i >= 0 ? (String(i + 1).padStart(2, "0") + " / " + String(cues.length).padStart(2, "0")) : "";
+        t.textContent = i >= 0 ? cues[i][1] : "";
+        t.classList.remove("swap");
+      };
+      if (instant || !motion) { apply(); return; }
+      t.classList.add("swap"); setTimeout(apply, 180);
+    }
+    function tick() {
+      var cur = v.currentTime || 0, i = -1;
+      for (var k = 0; k < cues.length; k++) { if (cur + 0.05 >= cues[k][0]) i = k; }
+      show(i, false);
+      if (v.duration) bar.style.width = (cur / v.duration * 100) + "%";
+    }
+    v.addEventListener("timeupdate", tick);
+    v.addEventListener("seeked", tick);
+    v.addEventListener("play", setCtl); v.addEventListener("pause", setCtl);
+    ctl.addEventListener("click", function () { if (v.paused) { v.play().catch(function () {}); } else { v.pause(); } });
+    v.addEventListener("click", function () { if (v.paused) { v.play().catch(function () {}); } else { v.pause(); } });
+    show(cues.length ? 0 : -1, true); setCtl();
+    if ("IntersectionObserver" in window) {
+      var vo = new IntersectionObserver(function (es) { es.forEach(function (e) {
+        if (e.isIntersecting) { if (motion) v.play().catch(function () {}); }
+        else { v.pause(); }
+      }); }, { threshold: .3 });
+      vo.observe(v);
+    } else if (motion) { v.play().catch(function () {}); }
+  });
+})();
+</script>
+
+</body>
+</html>
