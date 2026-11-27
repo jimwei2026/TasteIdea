@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TasteIdea</title>
+<meta name="description" content="TasteIdea：给导演和创作者的 Mac 工作台。看到就收，铺开、连起来，用自己的话找回，排进日子里。Mac 内测版免费下载。">
+<meta property="og:title" content="TasteIdea · 收好每一个灵感">
+<meta property="og:description" content="给导演和创作者的 Mac 工作台。Mac 内测版免费下载。">
+<meta property="og:image" content="https://jimwei2026.github.io/TasteIdea/media/film-poster.webp">
+<meta property="og:url" content="https://jimwei2026.github.io/TasteIdea/">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="media/favicon.png">
+<link rel="apple-touch-icon" href="media/apple-touch-icon.png">
+<style>
+/* 极简：纯黑 / 近黑两种底交替（和宣传片一个调子），一屏一句话 + 一张图；颜色只有白、灰和一个蓝色按钮 */
+:root {
+  --bg: #000000; --bg-alt: #0c0c0d; --fg: #f5f5f7; --fg-2: #a1a1a6; --fg-3: #6e6e73;
+  --blue: #0071e3; --blue-hover: #0077ed; --line: rgba(255, 255, 255, .1);
+  --font: -apple-system, "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.5;
+       -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+/* 顶栏：细、半透明 */
+.nav { position: sticky; top: 0; z-index: 10; height: 52px; background: rgba(0, 0, 0, .72);
+       backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--line); }
+.nav .in { max-width: 1040px; height: 100%; margin: 0 auto; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+.brand img { width: 24px; height: 24px; border-radius: 6px; }
+.nav .dl { font-size: 13px; padding: 5px 14px; border-radius: 980px; background: var(--blue); color: #fff; font-weight: 500; }
+.nav .dl:hover { background: var(--blue-hover); }
+
+/* 按钮 */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 980px; background: var(--blue); color: #fff;
+       font-size: 17px; font-weight: 500; letter-spacing: -.01em; transition: background .2s, transform .2s; }
+.btn:hover { background: var(--blue-hover); }
+.btn:active { transform: scale(.98); }
+.btn:focus-visible, .nav .dl:focus-visible { outline: 3px solid rgba(0, 113, 227, .45); outline-offset: 3px; }
+.btn svg { width: 18px; height: 18px; }
+
+/* 首屏 */
+.hero { text-align: center; padding: clamp(72px, 12vw, 140px) 22px clamp(48px, 7vw, 80px); }
+.hero .icon { width: clamp(88px, 11vw, 128px); height: auto; margin: 0 auto 28px; border-radius: 22%; box-shadow: 0 18px 60px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .08); }
+.hero h1 { margin: 0; font-size: clamp(52px, 9vw, 104px); line-height: 1.04; font-weight: 700; letter-spacing: -.035em; }
+.hero .lead { margin: 14px 0 0; font-size: clamp(26px, 4vw, 44px); line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+.hero .sub { margin: 18px auto 0; max-width: 34em; color: var(--fg-2); font-size: clamp(17px, 2vw, 21px); }
+.hero .actions { margin-top: 36px; }
+.meta { margin: 16px 0 0; color: var(--fg-3); font-size: 14px; }
+
+/* 宣传片 */
+.film { padding: 0 22px clamp(80px, 10vw, 140px); }
+.film .frame { position: relative; max-width: 1120px; margin: 0 auto; border-radius: clamp(14px, 2vw, 28px); overflow: hidden; background: #000;
+               box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); aspect-ratio: 16 / 9; }
+.film video { width: 100%; height: 100%; object-fit: cover; }
+.film .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border: 0; padding: 0; background: transparent; cursor: pointer; }
+.film .play span { display: flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 980px; color: #1d1d1f; font: 500 17px var(--font);
+                   background: rgba(255, 255, 255, .86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 10px 30px rgba(0, 0, 0, .2); transition: transform .2s; }
+.film .play:hover span { transform: scale(1.04); }
+.film .play:focus-visible span { outline: 3px solid rgba(0, 113, 227, .55); outline-offset: 3px; }
+.film .play svg { width: 18px; height: 18px; }
+.film.playing .play { display: none; }
+
+/* 一屏一个功能 */
+.feat { padding: clamp(80px, 11vw, 150px) 22px; text-align: center; overflow: hidden; }
+.feat.alt { background: var(--bg-alt); }
+.feat h2 { margin: 0; font-size: clamp(38px, 6.4vw, 80px); line-height: 1.08; font-weight: 700; letter-spacing: -.03em; }
+.feat p { margin: 18px auto 0; max-width: 30em; color: var(--fg-2); font-size: clamp(17px, 2vw, 22px); }
+.feat .shot { max-width: 1120px; margin: clamp(40px, 6vw, 72px) auto 0; }
+.feat .shot img { width: 100%; height: auto; border-radius: clamp(10px, 1.6vw, 20px); }
+.feat .shot.win img { box-shadow: 0 40px 120px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .09); }
+.feat .shot.flat img { border-radius: 0; }
+
+/* 收尾 */
+.end { text-align: center; padding: clamp(96px, 12vw, 160px) 22px; }
+.end img { width: 88px; height: 88px; margin: 0 auto 26px; border-radius: 22%; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); }
+.end h2 { margin: 0 0 30px; font-size: clamp(36px, 5.6vw, 64px); line-height: 1.1; font-weight: 700; letter-spacing: -.03em; }
+.end .note { margin: 22px auto 0; max-width: 34em; color: var(--fg-3); font-size: 14px; }
+footer { border-top: 1px solid var(--line); background: var(--bg-alt); color: var(--fg-3); font-size: 12px; }
+footer .in { max-width: 1040px; margin: 0 auto; padding: 20px 22px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* 进场：默认可见；支持动效时进视口轻轻上浮 */
+.js .reveal { opacity: 0; transform: translateY(32px); transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform .9s cubic-bezier(.2, .7, .2, 1); }
+.js .reveal.in { opacity: 1; transform: none; }
+.js .reveal.d1 { transition-delay: .08s; } .js .reveal.d2 { transition-delay: .16s; }
+@media (prefers-reduced-motion: reduce) { .js .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
+@media (max-width: 600px) { .nav .in { padding: 0 16px; } .hero, .film, .feat, .end { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js'); document.body.classList.add('js');</script>
+
+<header class="nav">
+  <div class="in">
+    <a class="brand" href="#top"><img src="media/app-icon.png" alt="" width="24" height="24">TasteIdea</a>
+    <a class="dl" href="#download" data-dmg>下载</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <img class="icon reveal" src="media/app-icon.png" alt="TasteIdea 图标" width="128" height="128">
+    <h1 class="reveal">TasteIdea</h1>
+    <p class="lead reveal d1">收好每一个灵感。</p>
+    <p class="sub reveal d1">给导演和创作者的 Mac 工作台：把打动你的画面收下来，铺在一块画布上，用自己的话找回，再排进日子里。</p>
+    <div class="actions reveal d2">
+      <a class="btn" href="#download" data-dmg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>免费下载 Mac 版</a>
+      <p class="meta"><span data-ver>内测版</span> · macOS 14 及以上 · Apple 芯片与 Intel</p>
+    </div>
+  </section>
+
+  <section class="film reveal" aria-label="宣传片">
+    <div class="frame">
+      <video id="film" src="media/tasteidea-film.mp4" poster="media/film-poster.webp" preload="none" playsinline></video>
+      <button class="play" type="button" aria-label="播放宣传片（57 秒，有声）"><span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>观看宣传片</span></button>
+    </div>
+  </section>
+
+  <section class="feat">
+    <h2 class="reveal">看到就收。</h2>
+    <p class="reveal d1">拖进来、粘贴进来，原件替你存好。图片、视频、音频、链接、一句话，都放进同一个资料库。</p>
+    <div class="shot win reveal d2"><img src="media/feat-library.webp" alt="资料库：雨夜、霓虹、海边，一格格参考画面" width="2400" height="1500" loading="lazy" decoding="async"></div>
+  </section>
+
+  <section class="feat alt">
+    <h2 class="reveal">铺开，连起来。</h2>
+    <p class="reveal d1">参考、想法、分镜，摊在同一块无限画布上，拉一条线就把它们连在一起。</p>
+    <div class="shot win reveal d2"><img src="media/feat-canvas.webp" alt="无限画布：《雨停之前》的分镜，三段标题、参考画面、便签和连线" width="2400" height="942" loading="lazy" decoding="async"></div>
+  </section>
+
+  <section class="feat">
+    <h2 class="reveal">用你自己的话，找回它。</h2>
+    <p class="reveal d1">记不清名字也没关系。打一个「雨」，下雨的那几张就都回来了。</p>
+    <div class="shot flat reveal d2"><img src="media/feat-search.webp" alt="搜索「雨」，出来四张雨夜的画面" width="2400" height="888" loading="lazy" decoding="async"></div>
+  </section>
+
+  <section class="feat alt">
+    <h2 class="reveal">把灵感，排进日子里。</h2>
+    <p class="reveal d1">拍摄、交片、开会，一页日历看清。快速添加时打「明天下午三点」，日期就自己填好了。</p>
+    <div class="shot win reveal d2"><img src="media/feat-calendar.webp" alt="月历：一个月的拍摄安排" width="2400" height="1500" loading="lazy" decoding="async"></div>
+  </section>
+
+  <section class="feat">
+    <h2 class="reveal">原件，一直都在。</h2>
+    <p class="reveal d1">拖进来的东西都存一份原件，按图片、视频、音频、文件分好放在「影片」文件夹里。原文件挪走、删掉，也不影响。</p>
+    <div class="shot flat reveal d2"><img src="media/feat-library-folders.webp" alt="素材库的四个文件夹：图片、视频、音频、文件" width="2400" height="562" loading="lazy" decoding="async"></div>
+  </section>
+
+  <section class="end" id="download">
+    <img class="reveal" src="media/app-icon.png" alt="" width="88" height="88">
+    <h2 class="reveal">现在就开始收。</h2>
+    <div class="reveal d1">
+      <a class="btn" href="#download" data-dmg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>免费下载 Mac 版</a>
+      <p class="meta"><span data-ver>内测版</span> · macOS 14 及以上 · Apple 芯片与 Intel</p>
+      <p class="note">第一次打开：在「应用程序」里对 TasteIdea 点右键，选「打开」，再点一次「打开」（内测包没有经过苹果公证）。</p>
+    </div>
+  </section>
+</main>
+
+<footer><div class="in"><span>TasteIdea · 收好每一个灵感</span><span data-ver>内测版</span></div></footer>
+
+<script>
+(function () {
+  // 版本和下载地址只在这里改
+  var VERSION = "0.3.8";
+  var DMG = "https://github.com/jimwei2026/TasteIdea/releases/download/v" + VERSION + "/TasteIdea-" + VERSION + ".dmg";
+  document.querySelectorAll("[data-dmg]").forEach(function (a) { a.href = DMG; });
+  document.querySelectorAll("[data-ver]").forEach(function (s) { s.textContent = "内测版 " + VERSION; });
+
+  var motion = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (motion && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+  }
+
+  // 宣传片：点「观看宣传片」才加载、有声播放；播完回到封面按钮
+  var box = document.querySelector(".film"), v = document.getElementById("film"), btn = box.querySelector(".play");
+  btn.addEventListener("click", function () { box.classList.add("playing"); v.controls = true; v.muted = false; v.play(); });
+  v.addEventListener("ended", function () { box.classList.remove("playing"); v.controls = false; v.currentTime = 0; v.load(); });
+})();
+</script>
+</body>
+</html>
